@@ -1,0 +1,8 @@
+[package]
+name = "crackclock"
+version = "0.1.0"
+edition = "2021"
+description = "Estimates how long a password would take to crack"
+license = "MIT"
+
+[dependencies]
