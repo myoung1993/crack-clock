@@ -13,6 +13,8 @@
 //! a repeated character, a run of consecutive characters, a keyboard walk,
 //! or an exact match against a small list of passwords everyone tries.
 
+use std::collections::HashSet;
+
 /// A list of passwords that show up at or near the top of every leaked
 /// password corpus. Matching one of these means the true search space is
 /// "how far down this list is it", not "26^length" - so entropy gets
@@ -68,6 +70,13 @@ pub fn scenarios() -> [Scenario; 4] {
 }
 
 pub fn analyze(password: &str) -> Analysis {
+    analyze_with_common_passwords(password, &HashSet::new())
+}
+
+/// Same as [`analyze`], but a password is also flagged as "commonly used"
+/// if it matches an entry in `extra_common` (e.g. loaded from a wordlist
+/// file), not just the small built-in list.
+pub fn analyze_with_common_passwords(password: &str, extra_common: &HashSet<String>) -> Analysis {
     let chars: Vec<char> = password.chars().collect();
     let length = chars.len();
 
@@ -123,7 +132,7 @@ pub fn analyze(password: &str) -> Analysis {
     let mut notes = Vec::new();
     let lower_password = password.to_lowercase();
 
-    if COMMON_PASSWORDS.contains(&lower_password.as_str()) {
+    if COMMON_PASSWORDS.contains(&lower_password.as_str()) || extra_common.contains(&lower_password) {
         notes.push("matches a commonly used password".to_string());
         return Analysis {
             length,
@@ -381,6 +390,26 @@ mod tests {
                 ),
             }
         }
+    }
+
+    #[test]
+    fn extra_wordlist_catches_passwords_the_builtin_list_misses() {
+        let plain = analyze("correcthorsebatterystaple");
+        assert!(plain.notes.is_empty());
+
+        let mut wordlist = HashSet::new();
+        wordlist.insert("correcthorsebatterystaple".to_string());
+        let flagged = analyze_with_common_passwords("correcthorsebatterystaple", &wordlist);
+        assert_eq!(flagged.entropy_bits, 8.0);
+        assert!(flagged
+            .notes
+            .iter()
+            .any(|n| n.contains("commonly used password")));
+
+        // Matching is case-insensitive, same as the built-in list.
+        let flagged_mixed_case =
+            analyze_with_common_passwords("CorrectHorseBatteryStaple", &wordlist);
+        assert_eq!(flagged_mixed_case.entropy_bits, 8.0);
     }
 
     #[test]

@@ -62,14 +62,22 @@ Passwords containing spaces need to be passed as a single quoted argument,
 or piped in on stdin - the CLI does not distinguish "one argument with
 spaces" from "several words".
 
+By default the common-password check only covers a short built-in list.
+Pass `--wordlist` with a path to a file (one password per line) to also
+flag matches against a larger corpus:
+
+```
+cargo run --release -- --wordlist rockyou.txt 'letmein123'
+```
+
 ## Known limitations
 
 - Input from stdin is not hidden from the terminal. This is a query tool
   for testing password ideas, not a login prompt; don't feed it a password
   you're actively using without expecting it to show up in your shell
   history or terminal scrollback.
-- The common-password list is short and hardcoded. A real leaked-password
-  corpus would catch far more.
+- The built-in common-password list is short. Use `--wordlist` to check
+  against a larger corpus instead.
 - Pattern detection only looks at exact ASCII keyboard rows and simple
   ascending/descending runs. It doesn't catch things like `p@ssw0rd`
   (leetspeak substitution) or dictionary words with a digit appended.
