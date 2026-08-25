@@ -19,7 +19,9 @@ Then it checks for a few things real cracking tools try before anything
 else, because a naive entropy estimate badly overstates the difficulty of
 these:
 
-- an exact match against a short list of extremely common passwords
+- an exact match against a short list of extremely common passwords, or a
+  match after undoing common leetspeak substitutions (`p@ssw0rd` ->
+  `password`)
 - a run of the same character repeated (`aaaaaaaa`)
 - a sequential run of characters (`abcdefgh`, `12345678`)
 - a keyboard walk (`qwertyuiop`)
@@ -79,8 +81,10 @@ cargo run --release -- --wordlist rockyou.txt 'letmein123'
 - The built-in common-password list is short. Use `--wordlist` to check
   against a larger corpus instead.
 - Pattern detection only looks at exact ASCII keyboard rows and simple
-  ascending/descending runs. It doesn't catch things like `p@ssw0rd`
-  (leetspeak substitution) or dictionary words with a digit appended.
+  ascending/descending runs. Leetspeak substitutions are undone before the
+  common-password check, but a dictionary word with a digit appended
+  (`password7`) or two words joined together isn't caught unless it happens
+  to be in the common-password list or wordlist verbatim.
 - The crack-time estimate is exhaustive-search time (the full keyspace),
   not expected time to find one specific password (which would typically
   be half that). This makes the numbers a bit pessimistic for an attacker

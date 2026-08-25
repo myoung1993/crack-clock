@@ -142,6 +142,24 @@ pub fn analyze_with_common_passwords(password: &str, extra_common: &HashSet<Stri
         };
     }
 
+    // Cracking tools mangle every word in a dictionary through a small set of
+    // substitution rules before trying it, so a password that only differs
+    // from a common one by "@" for "a" or "0" for "o" is not meaningfully
+    // safer. The normalized form is checked against the same lists as the
+    // exact match above.
+    let delooted = undo_leet_substitutions(&lower_password);
+    if delooted != lower_password
+        && (COMMON_PASSWORDS.contains(&delooted.as_str()) || extra_common.contains(&delooted))
+    {
+        notes.push("matches a commonly used password with leetspeak substitutions".to_string());
+        return Analysis {
+            length,
+            pool_size: pool,
+            entropy_bits: 8.0,
+            notes,
+        };
+    }
+
     let repeat_run = longest_repeat_run(&chars);
     let seq_run = longest_sequential_run(&chars);
     let keyboard_run = longest_keyboard_run(&lower_password);
@@ -178,6 +196,29 @@ pub fn analyze_with_common_passwords(password: &str, extra_common: &HashSet<Stri
         entropy_bits,
         notes,
     }
+}
+
+/// Maps common leetspeak stand-ins back to the letter they're standing in
+/// for. `1` and `!` are read as `i` (as in `adm1n`), not `l`, since that's
+/// the more common usage; `|` is read as `l` instead, so the two don't
+/// collide. This is a lossy, one-way normalization meant only to answer
+/// "does this collapse to a known weak password", not to reverse leetspeak
+/// in general.
+fn undo_leet_substitutions(lower: &str) -> String {
+    lower
+        .chars()
+        .map(|c| match c {
+            '@' | '4' => 'a',
+            '8' => 'b',
+            '3' => 'e',
+            '1' | '!' => 'i',
+            '|' => 'l',
+            '0' => 'o',
+            '5' | '$' => 's',
+            '7' | '+' => 't',
+            other => other,
+        })
+        .collect()
 }
 
 fn longest_repeat_run(chars: &[char]) -> usize {
@@ -410,6 +451,36 @@ mod tests {
         let flagged_mixed_case =
             analyze_with_common_passwords("CorrectHorseBatteryStaple", &wordlist);
         assert_eq!(flagged_mixed_case.entropy_bits, 8.0);
+    }
+
+    #[test]
+    fn leetspeak_substitutions_still_flag_as_common() {
+        for password in ["p@ssw0rd", "l3tm3in", "adm1n", "W3lc0me"] {
+            let result = analyze(password);
+            assert_eq!(result.entropy_bits, 8.0, "{}: expected weak entropy", password);
+            assert!(
+                result
+                    .notes
+                    .iter()
+                    .any(|n| n.contains("leetspeak substitutions")),
+                "{}: expected a leetspeak note, got {:?}",
+                password,
+                result.notes
+            );
+        }
+    }
+
+    #[test]
+    fn leetspeak_normalization_also_applies_to_wordlist_matches() {
+        let mut wordlist = HashSet::new();
+        wordlist.insert("correcthorsebatterystaple".to_string());
+        let result =
+            analyze_with_common_passwords("c0rrecth0rseb@ttery5tap|e", &wordlist);
+        assert_eq!(result.entropy_bits, 8.0);
+        assert!(result
+            .notes
+            .iter()
+            .any(|n| n.contains("leetspeak substitutions")));
     }
 
     #[test]
