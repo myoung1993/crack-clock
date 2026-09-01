@@ -72,6 +72,19 @@ flag matches against a larger corpus:
 cargo run --release -- --wordlist rockyou.txt 'letmein123'
 ```
 
+Pass `--json` to get the same analysis as a single-line JSON object instead
+of the human-readable report, for piping into another tool:
+
+```
+cargo run --release -- --json 'qwerty'
+```
+
+```
+{"length":6,"pool_size":26,"entropy_bits":8,"notes":["matches a commonly used password"],"scenarios":[{"name":"online, throttled (100 guesses/hour)","guesses_per_second":0.027777777777777776,"seconds":288,"human":"2.6 hours"},{"name":"online, unthrottled (10 guesses/sec)","guesses_per_second":10,"seconds":0.8,"human":"26 seconds"},{"name":"offline, slow hash (10k guesses/sec)","guesses_per_second":10000,"seconds":0.0008,"human":"less than a second"},{"name":"offline, fast hash (10B guesses/sec)","guesses_per_second":10000000000,"seconds":8e-10,"human":"less than a second"}]}
+```
+
+`--json` and `--wordlist` can be combined, in either order.
+
 ## Known limitations
 
 - Input from stdin is not hidden from the terminal. This is a query tool
