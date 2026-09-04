@@ -256,13 +256,26 @@ fn longest_sequential_run(chars: &[char]) -> usize {
 }
 
 fn longest_keyboard_run(lower_password: &str) -> usize {
-    const ROWS: [&str; 6] = [
+    // Horizontal numpad rows ("789", "456", "123") aren't listed here: their
+    // digits are already consecutive ASCII code points, so
+    // `longest_sequential_run` catches them. The vertical reads down a
+    // column ("741", "963", ...) aren't consecutive code points, so they
+    // need to be listed explicitly to be caught at all.
+    const PATTERNS: [&str; 14] = [
         "qwertyuiop",
         "poiuytrewq",
         "asdfghjkl",
         "lkjhgfdsa",
         "zxcvbnm",
         "mnbvcxz",
+        "741",
+        "852",
+        "963",
+        "147",
+        "258",
+        "369",
+        "!@#$%^&*()",
+        ")(*&^%$#@!",
     ];
     let chars: Vec<char> = lower_password.chars().collect();
     let n = chars.len();
@@ -274,7 +287,7 @@ fn longest_keyboard_run(lower_password: &str) -> usize {
                 continue;
             }
             let substr: String = chars[start..end].iter().collect();
-            if ROWS.iter().any(|row| row.contains(&substr)) {
+            if PATTERNS.iter().any(|pattern| pattern.contains(&substr)) {
                 best = best.max(len);
             }
         }
@@ -366,6 +379,20 @@ mod tests {
                 password: "qwertyuiop",
                 min_bits: 4.5,
                 max_bits: 4.8,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "numpad column walk",
+                password: "741",
+                min_bits: 3.0,
+                max_bits: 3.5,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "shifted number row walk",
+                password: "!@#$",
+                min_bits: 5.0,
+                max_bits: 5.1,
                 note_contains: Some("keyboard-walk pattern"),
             },
             Case {
