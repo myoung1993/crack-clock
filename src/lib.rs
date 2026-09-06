@@ -261,7 +261,12 @@ fn longest_keyboard_run(lower_password: &str) -> usize {
     // `longest_sequential_run` catches them. The vertical reads down a
     // column ("741", "963", ...) aren't consecutive code points, so they
     // need to be listed explicitly to be caught at all.
-    const PATTERNS: [&str; 14] = [
+    //
+    // Diagonal walks down a column across the three letter rows (e.g. "qaz",
+    // stepping from the top row through home row to bottom row on adjacent
+    // keys) are also not consecutive code points, so each column is listed
+    // explicitly too, forward and reversed.
+    const PATTERNS: [&str; 34] = [
         "qwertyuiop",
         "poiuytrewq",
         "asdfghjkl",
@@ -276,6 +281,26 @@ fn longest_keyboard_run(lower_password: &str) -> usize {
         "369",
         "!@#$%^&*()",
         ")(*&^%$#@!",
+        "qaz",
+        "wsx",
+        "edc",
+        "rfv",
+        "tgb",
+        "yhn",
+        "ujm",
+        "ik,",
+        "ol.",
+        "p;/",
+        "zaq",
+        "xsw",
+        "cde",
+        "vfr",
+        "bgt",
+        "hny",
+        "mju",
+        ",ki",
+        ".lo",
+        "/;p",
     ];
     let chars: Vec<char> = lower_password.chars().collect();
     let n = chars.len();
@@ -386,6 +411,13 @@ mod tests {
                 password: "741",
                 min_bits: 3.0,
                 max_bits: 3.5,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "diagonal keyboard walk",
+                password: "qaz",
+                min_bits: 4.5,
+                max_bits: 4.8,
                 note_contains: Some("keyboard-walk pattern"),
             },
             Case {

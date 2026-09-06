@@ -94,12 +94,13 @@ cargo run --release -- --json 'qwerty'
 - The built-in common-password list is short. Use `--wordlist` to check
   against a larger corpus instead.
 - Pattern detection covers ASCII qwerty rows, numpad column walks
-  (`741`, `963`, ...), the shifted number row (`!@#$%^&*()`), and simple
-  ascending/descending runs. It doesn't know about other keyboard layouts,
-  diagonal walks, or other shifted symbol rows. Leetspeak substitutions are
-  undone before the common-password check, but a dictionary word with a
-  digit appended (`password7`) or two words joined together isn't caught
-  unless it happens to be in the common-password list or wordlist verbatim.
+  (`741`, `963`, ...), diagonal column walks across the letter rows (`qaz`,
+  `wsx`, ...), the shifted number row (`!@#$%^&*()`), and simple
+  ascending/descending runs. It doesn't know about other keyboard layouts
+  or other shifted symbol rows. Leetspeak substitutions are undone before
+  the common-password check, but a dictionary word with a digit appended
+  (`password7`) or two words joined together isn't caught unless it happens
+  to be in the common-password list or wordlist verbatim.
 - The crack-time estimate is exhaustive-search time (the full keyspace),
   not expected time to find one specific password (which would typically
   be half that). This makes the numbers a bit pessimistic for an attacker
