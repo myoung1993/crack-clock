@@ -266,21 +266,34 @@ fn longest_keyboard_run(lower_password: &str) -> usize {
     // stepping from the top row through home row to bottom row on adjacent
     // keys) are also not consecutive code points, so each column is listed
     // explicitly too, forward and reversed.
-    const PATTERNS: [&str; 34] = [
+    //
+    // Holding shift while typing a row changes more than the letters (which
+    // `lower_password` already normalizes back down): the trailing
+    // punctuation keys on the top, home, and bottom rows shift to different
+    // symbols too (`[]\` -> `{}|`, `;'` -> `:"`, `,./` -> `<>?`), and the
+    // number row's `-=` shift to `_+`. Those shifted rows are listed here in
+    // full so a walk typed with shift held is still caught.
+    const PATTERNS: [&str; 40] = [
         "qwertyuiop",
         "poiuytrewq",
         "asdfghjkl",
         "lkjhgfdsa",
         "zxcvbnm",
         "mnbvcxz",
+        "qwertyuiop{}|",
+        "|}{poiuytrewq",
+        "asdfghjkl:\"",
+        "\":lkjhgfdsa",
+        "zxcvbnm<>?",
+        "?><mnbvcxz",
         "741",
         "852",
         "963",
         "147",
         "258",
         "369",
-        "!@#$%^&*()",
-        ")(*&^%$#@!",
+        "!@#$%^&*()_+",
+        "+_)(*&^%$#@!",
         "qaz",
         "wsx",
         "edc",
@@ -425,6 +438,34 @@ mod tests {
                 password: "!@#$",
                 min_bits: 5.0,
                 max_bits: 5.1,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "shifted number row walk into underscore/plus",
+                password: "*()_+",
+                min_bits: 5.0,
+                max_bits: 5.1,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "shifted home row walk",
+                password: "ghjkl:\"",
+                min_bits: 5.8,
+                max_bits: 6.0,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "shifted bottom row walk",
+                password: "xcvbnm<>?",
+                min_bits: 5.8,
+                max_bits: 6.0,
+                note_contains: Some("keyboard-walk pattern"),
+            },
+            Case {
+                name: "shifted top row walk into braces/pipe",
+                password: "uiop{}|",
+                min_bits: 5.8,
+                max_bits: 6.0,
                 note_contains: Some("keyboard-walk pattern"),
             },
             Case {

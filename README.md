@@ -95,10 +95,10 @@ cargo run --release -- --json 'qwerty'
   against a larger corpus instead.
 - Pattern detection covers ASCII qwerty rows, numpad column walks
   (`741`, `963`, ...), diagonal column walks across the letter rows (`qaz`,
-  `wsx`, ...), the shifted number row (`!@#$%^&*()`), and simple
-  ascending/descending runs. It doesn't know about other keyboard layouts
-  or other shifted symbol rows. Leetspeak substitutions are undone before
-  the common-password check, but a dictionary word with a digit appended
+  `wsx`, ...), the shifted versions of the number, top, home, and bottom
+  rows (`!@#$%^&*()_+`, `{}|`, `:"`, `<>?`), and simple ascending/descending
+  runs. It doesn't know about other keyboard layouts. Leetspeak substitutions
+  are undone before the common-password check, but a dictionary word with a digit appended
   (`password7`) or two words joined together isn't caught unless it happens
   to be in the common-password list or wordlist verbatim.
 - The crack-time estimate is exhaustive-search time (the full keyspace),
