@@ -54,7 +54,9 @@ estimated time to crack by brute force:
 ```
 
 If no password is given as an argument, it reads one line from stdin
-instead:
+instead. Run it with no arguments in an interactive terminal and it prompts
+and hides what you type (on Unix); pipe input in and it reads that instead,
+visibly, since there's no terminal echo to suppress:
 
 ```
 echo 'Tr0ub4dor&3' | cargo run --release
@@ -87,10 +89,12 @@ cargo run --release -- --json 'qwerty'
 
 ## Known limitations
 
-- Input from stdin is not hidden from the terminal. This is a query tool
-  for testing password ideas, not a login prompt; don't feed it a password
-  you're actively using without expecting it to show up in your shell
-  history or terminal scrollback.
+- Terminal echo is only suppressed on Unix (it shells out to `stty`, so
+  the `stty` binary needs to be on `PATH`). On other platforms, or when
+  `stty` can't be run, input read from stdin is visible. This is a query
+  tool for testing password ideas, not a login prompt either way; don't
+  feed it a password you're actively using without expecting it to show
+  up in your shell history if you pass it as an argument.
 - The built-in common-password list is short. Use `--wordlist` to check
   against a larger corpus instead.
 - Pattern detection covers ASCII qwerty rows, numpad column walks

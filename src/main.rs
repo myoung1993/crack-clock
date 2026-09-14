@@ -1,8 +1,10 @@
 use std::collections::HashSet;
 use std::env;
 use std::fs;
-use std::io::{self, Read};
+use std::io;
 use std::process;
+
+mod terminal;
 
 fn main() {
     let mut args: Vec<String> = env::args().skip(1).collect();
@@ -18,12 +20,10 @@ fn main() {
     let json_output = extract_json_flag(&mut args);
 
     let password = if args.is_empty() {
-        eprintln!("reading password from stdin (input will be visible)");
-        let mut input = String::new();
-        io::stdin()
-            .read_to_string(&mut input)
-            .expect("failed to read from stdin");
-        input.trim_end_matches(['\n', '\r']).to_string()
+        terminal::read_password().unwrap_or_else(|err| {
+            eprintln!("failed to read password from stdin: {}", err);
+            process::exit(1);
+        })
     } else {
         args.join(" ")
     };
