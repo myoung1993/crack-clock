@@ -55,8 +55,11 @@ estimated time to crack by brute force:
 
 If no password is given as an argument, it reads one line from stdin
 instead. Run it with no arguments in an interactive terminal and it prompts
-and hides what you type (on Unix); pipe input in and it reads that instead,
-visibly, since there's no terminal echo to suppress:
+and hides what you type (on Unix), then asks you to type it again to catch
+typos you can't see - if the two don't match it asks again, up to three
+times, then gives up. Pipe input in and it reads that, visibly and without a
+confirmation prompt, since there's no terminal echo to suppress and only one
+line to read:
 
 ```
 echo 'Tr0ub4dor&3' | cargo run --release

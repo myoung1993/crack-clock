@@ -5,19 +5,43 @@
 
 use std::io::{self, Read, Write};
 
+/// Hidden input can't be glanced at before submitting, so a mistyped
+/// character is otherwise invisible until the analysis comes back for the
+/// wrong password. Asking twice and requiring a match catches that; capping
+/// it at a few attempts avoids trapping a user who genuinely can't type the
+/// same thing twice (e.g. a long passphrase) in an endless loop.
+const MAX_ATTEMPTS: u32 = 3;
+
 pub fn read_password() -> io::Result<String> {
     if imp::stdin_is_tty() {
-        eprint!("password (input hidden): ");
-        io::stderr().flush()?;
-        let result = imp::read_line_without_echo();
-        eprintln!();
-        result
+        for attempt in 1..=MAX_ATTEMPTS {
+            let first = prompt_hidden("password (input hidden): ")?;
+            let second = prompt_hidden("confirm password: ")?;
+            if first == second {
+                return Ok(first);
+            }
+            if attempt < MAX_ATTEMPTS {
+                eprintln!("passwords didn't match, try again");
+            }
+        }
+        Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("passwords didn't match after {} attempts", MAX_ATTEMPTS),
+        ))
     } else {
         eprintln!("reading password from stdin (input will be visible)");
         let mut input = String::new();
         io::stdin().read_to_string(&mut input)?;
         Ok(trim_line_ending(&input))
     }
+}
+
+fn prompt_hidden(prompt: &str) -> io::Result<String> {
+    eprint!("{}", prompt);
+    io::stderr().flush()?;
+    let result = imp::read_line_without_echo();
+    eprintln!();
+    result
 }
 
 fn trim_line_ending(s: &str) -> String {
