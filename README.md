@@ -92,12 +92,13 @@ cargo run --release -- --json 'qwerty'
 
 ## Known limitations
 
-- Terminal echo is only suppressed on Unix (it shells out to `stty`, so
-  the `stty` binary needs to be on `PATH`). On other platforms, or when
-  `stty` can't be run, input read from stdin is visible. This is a query
-  tool for testing password ideas, not a login prompt either way; don't
-  feed it a password you're actively using without expecting it to show
-  up in your shell history if you pass it as an argument.
+- Terminal echo is suppressed on Unix (shelling out to `stty`, so the
+  `stty` binary needs to be on `PATH`) and on Windows (via the console
+  mode API). On any other platform, or when `stty` can't be run, input
+  read from stdin is visible. This is a query tool for testing password
+  ideas, not a login prompt either way; don't feed it a password you're
+  actively using without expecting it to show up in your shell history
+  if you pass it as an argument.
 - The built-in common-password list is short. Use `--wordlist` to check
   against a larger corpus instead.
 - Pattern detection covers ASCII qwerty rows, numpad column walks
