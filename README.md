@@ -69,7 +69,7 @@ Passwords containing spaces need to be passed as a single quoted argument,
 or piped in on stdin - the CLI does not distinguish "one argument with
 spaces" from "several words".
 
-By default the common-password check only covers a short built-in list.
+By default the common-password check only covers the built-in list.
 Pass `--wordlist` with a path to a file (one password per line) to also
 flag matches against a larger corpus:
 
@@ -99,8 +99,9 @@ cargo run --release -- --json 'qwerty'
   ideas, not a login prompt either way; don't feed it a password you're
   actively using without expecting it to show up in your shell history
   if you pass it as an argument.
-- The built-in common-password list is short. Use `--wordlist` to check
-  against a larger corpus instead.
+- The built-in common-password list is a few hundred entries, hand-picked
+  from the usual top-of-corpus suspects. Use `--wordlist` to check against
+  a larger corpus instead.
 - Pattern detection covers ASCII qwerty rows, numpad column walks
   (`741`, `963`, ...), diagonal column walks across the letter rows (`qaz`,
   `wsx`, ...), the shifted versions of the number, top, home, and bottom

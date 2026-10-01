@@ -19,9 +19,44 @@ use std::collections::HashSet;
 /// password corpus. Matching one of these means the true search space is
 /// "how far down this list is it", not "26^length" - so entropy gets
 /// clamped to log2(this list's size) rather than computed from length.
-const COMMON_PASSWORDS: [&str; 15] = [
+///
+/// Entries are lowercase because lookups are done on the lowercased input.
+/// Keep them free of pure keyboard walks and sequences (`qaz`, `abcdefgh`):
+/// the pattern checks already handle those and report a more useful reason.
+/// The list is a couple hundred entries so the flat 8-bit score (about 256
+/// guesses) is a fair description of it.
+const COMMON_PASSWORDS: &[&str] = &[
     "123456", "password", "123456789", "12345678", "12345", "qwerty", "abc123", "111111",
     "1234567", "letmein", "password1", "iloveyou", "admin", "welcome", "monkey",
+    "1234567890", "123123", "000000", "1234", "dragon", "master", "sunshine", "princess",
+    "football", "baseball", "shadow", "superman", "batman", "trustno1", "login",
+    "passw0rd", "starwars", "hello", "freedom", "whatever", "qazwsx", "michael",
+    "jordan", "harley", "ranger", "jennifer", "hunter", "buster", "soccer", "killer",
+    "george", "andrew", "charlie", "thomas", "robert", "daniel", "jessica", "ashley",
+    "nicole", "hannah", "joshua", "matthew", "pepper", "ginger", "summer", "winter",
+    "spring", "autumn", "secret", "access", "flower", "lovely", "cookie", "chocolate",
+    "butterfly", "internet", "computer", "samsung", "google", "facebook", "mustang",
+    "corvette", "porsche", "ferrari", "yankees", "cowboys", "eagles", "liverpool",
+    "chelsea", "arsenal", "barcelona", "pokemon", "naruto", "matrix", "cheese",
+    "banana", "orange", "purple", "silver", "golden", "diamond", "rainbow", "tigger",
+    "snoopy", "mickey", "peanut", "pass", "pass123", "pass1234", "password123",
+    "password12", "password1234", "passw0rd1", "admin123", "admin1234", "administrator",
+    "root", "toor", "test", "test123", "testing", "guest", "user", "demo", "default",
+    "changeme", "changeit", "temp", "temp123", "welcome1", "welcome123", "letmein1",
+    "letmein123", "monkey123", "dragon123", "master123", "qwerty123", "qwerty1",
+    "1q2w3e4r", "1q2w3e", "1qaz2wsx", "q1w2e3r4", "zaq12wsx", "abc12345",
+    "abcd1234", "a1b2c3", "a1b2c3d4", "iloveyou1", "iloveu", "ilovey0u", "lovelove",
+    "loveme", "fuckyou", "fuckoff", "asshole", "bitch", "money", "myspace1", "football1",
+    "baseball1", "basketball", "hockey", "tennis", "golfer", "fishing", "hammer",
+    "tiger", "lion", "bear", "wolf", "eagle", "falcon", "phoenix", "thunder", "lightning",
+    "hello123", "hello1", "hellohello", "internet1", "service", "support", "system",
+    "server", "network", "office", "company", "business", "america", "canada", "england",
+    "london", "paris", "newyork", "nothing", "anything", "everything", "something",
+    "forever", "always", "maggie", "samantha", "amanda", "jasmine", "brandon", "austin",
+    "taylor", "tyler", "cheyenne", "booboo", "bubbles", "pumpkin", "cupcake", "angel",
+    "angels", "sweetie", "babygirl", "iloveyou2", "blink182", "metallica", "nirvana",
+    "slipknot", "thebeatles", "beatles", "5555555", "7777777", "666666", "654321",
+    "121212", "112233", "696969", "159753", "987654321", "147258369", "0987654321",
 ];
 
 /// Result of analyzing one password.
@@ -407,7 +442,7 @@ mod tests {
             },
             Case {
                 name: "ascending digit run",
-                password: "12345678",
+                password: "23456789",
                 min_bits: 3.0,
                 max_bits: 3.5,
                 note_contains: Some("sequential run"),
